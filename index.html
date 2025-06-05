@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Abalone Age Predictor</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Abalone Rings Prediction</h1>
+        <form id="predictionForm">
+            <label>
+                Sex:
+                <select name="Sex" required>
+                    <option value="0">Female</option>
+
+                    
+                    <option value="1">Infant</option>
+                    <option value="2">Male</option>
+                </select>
+            </label>
+
+            <label>Length: <input type="number" step="0.001" name="Length" required /></label>
+            <label>Diameter: <input type="number" step="0.001" name="Diameter" required /></label>
+            <label>Height: <input type="number" step="0.001" name="Height" required /></label>
+            <label>Whole Weight: <input type="number" step="0.001" name="WholeWeight" required /></label>
+            <label>Shucked Weight: <input type="number" step="0.001" name="ShuckedWeight" required /></label>
+            <label>Viscera Weight: <input type="number" step="0.001" name="VisceraWeight" required /></label>
+            <label>Shell Weight: <input type="number" step="0.001" name="ShellWeight" required /></label>
+
+            <button type="submit">Predict Rings</button>
+        </form>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('predictionForm');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = key === "Sex" ? parseInt(value) : parseFloat(value);
+            });
+
+            try {
+                const response = await fetch("http://localhost:8000/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const result = await response.json();
+                resultDiv.textContent = `Predicted Rings: ${result.predicted_rings}`;
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
